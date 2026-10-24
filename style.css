@@ -13,3 +13,4 @@ button{background:#0b5394;color:#fff;border:0;border-radius:8px;padding:11px 16p
 textarea.big{min-height:260px;font-size:14px}.how{margin:0 0 6px;padding-left:20px;font-size:14px;line-height:1.5}
 .ex{cursor:pointer}.ex .full{white-space:pre-wrap;font-size:13px;background:#f7f9fb;padding:8px;border-radius:6px;margin-top:6px;max-height:420px;overflow:auto}
 .fine{font-size:11px;color:#6b7680;text-align:center;margin:4px 0 20px}
+.btnmp{display:inline-block;background:#0b5394;color:#fff!important;padding:12px 18px;border-radius:8px;font-weight:700;text-decoration:none;font-size:1.05em}
