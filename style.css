@@ -10,3 +10,6 @@ button{background:#0b5394;color:#fff;border:0;border-radius:8px;padding:11px 16p
 .ex{border:1px solid #d8dee4;border-radius:8px;padding:8px;margin:6px 0;font-size:14px}.st{font-size:12px;background:#fde2e1;color:#a00;padding:2px 6px;border-radius:5px}
 .st.ok{background:#d9f2dc;color:#176b25}#msg{font-weight:600;margin-top:10px}small{color:#5a6570}.ex button{padding:6px 10px;font-size:13px;margin:6px 4px 0 0}
 .top{display:flex;justify-content:space-between;align-items:center;font-size:13px;margin-bottom:8px}.top button{margin:0;padding:6px 10px;font-size:13px}
+textarea.big{min-height:260px;font-size:14px}.how{margin:0 0 6px;padding-left:20px;font-size:14px;line-height:1.5}
+.ex{cursor:pointer}.ex .full{white-space:pre-wrap;font-size:13px;background:#f7f9fb;padding:8px;border-radius:6px;margin-top:6px;max-height:420px;overflow:auto}
+.fine{font-size:11px;color:#6b7680;text-align:center;margin:4px 0 20px}

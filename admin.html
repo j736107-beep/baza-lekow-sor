@@ -16,7 +16,7 @@
 </main>
 <script src="common.js"></script>
 <script>
-var DATA=[];
+var DATA=[],OPEN={};
 function err(r){if(r.error){alert('Błąd: '+r.error.message);return true}}
 // datetime-local w czasie polskim -> ISO z offsetem Europe/Warsaw
 function plToISO(v){var d=new Date(v+':00Z');var off=new Date(d.toLocaleString('en-US',{timeZone:'Europe/Warsaw'}))-new Date(d.toLocaleString('en-US',{timeZone:'UTC'}));return new Date(d-off).toISOString()}
@@ -27,13 +27,13 @@ function info(){sb.rpc('sor_admin_info').then(function(r){if(err(r))return;var g
  $('ginfo').innerHTML='<small>Status: <b style="color:'+(on?'#176b25':'#a00')+'">'+(on?'aktywny':(g.active?'wygasł':'wyłączony'))+'</b> · ważny do '+fmtPL(g.expires_at)+' · kod zmieniony '+fmtPL(g.rotated_at)+'</small>'})}
 function render(){var q=norm($('flt').value),s=$('fs').value;var f=DATA.filter(function(r){return(!s||r.status===s)&&(!q||norm(JSON.stringify(r)).indexOf(q)>=0)});
  $('cnt').textContent='Wpisy: '+f.length+' / '+DATA.length+' · do weryfikacji: '+DATA.filter(function(r){return r.status==='do weryfikacji'}).length;
- $('all').innerHTML=f.map(function(r){return card(r,'<br><button data-a="ok" data-id="'+r.id+'">✓ Zatwierdź</button><button class="sec" data-a="no" data-id="'+r.id+'">Odrzuć</button><button class="sec" data-a="ed" data-id="'+r.id+'">Edytuj</button><button class="red" data-a="del" data-id="'+r.id+'">Usuń</button>')}).join('')}
+ $('all').innerHTML=f.map(function(r){return card2(r,OPEN[r.id],'<br><button data-a="ok" data-id="'+r.id+'">✓ Zatwierdź</button><button class="sec" data-a="no" data-id="'+r.id+'">Odrzuć</button><button class="sec" data-a="ed" data-id="'+r.id+'">Edytuj</button><button class="red" data-a="del" data-id="'+r.id+'">Usuń</button>')}).join('')}
 function load(){sb.from('leki').select('*').order('created_at',{ascending:false}).then(function(r){if(err(r))return;DATA=r.data||[];render()})}
 function upd(id,ch){sb.from('leki').update(ch).eq('id',id).then(function(r){err(r);load()})}
-$('all').onclick=function(ev){var b=ev.target.closest('button');if(!b)return;var id=b.dataset.id,r=DATA.find(function(x){return x.id===id});
+$('all').onclick=function(ev){var b=ev.target.closest('button');if(!b){var d=ev.target.closest('.ex');if(d&&!ev.target.closest('a')){OPEN[d.dataset.id]=!OPEN[d.dataset.id];render()}return}var id=b.dataset.id,r=DATA.find(function(x){return x.id===id});
  if(b.dataset.a==='ok')upd(id,{status:'zatwierdzone'});if(b.dataset.a==='no')upd(id,{status:'odrzucone'});
  if(b.dataset.a==='del'&&confirm('Usunąć wpis '+r.substancja+'?'))sb.from('leki').delete().eq('id',id).then(function(x){err(x);load()});
- if(b.dataset.a==='ed'){var ch={};['substancja','preparaty','wskazanie','dawka','droga','czestosc','dawka_max','nerki','przeciwwskazania','link'].forEach(function(k){var v=prompt(k,r[k]||'');if(v!==null&&v!==r[k])ch[k]=v});if(Object.keys(ch).length)upd(id,ch)}};
+ if(b.dataset.a==='ed'){var ch={};['substancja','link','tekst_mp'].forEach(function(k){var v=prompt(k,r[k]||'');if(v!==null&&v!==r[k])ch[k]=v});if(Object.keys(ch).length)upd(id,ch)}};
 $('nc').onclick=function(){if(!confirm('Wygenerować nowy kod? Dotychczasowy link przestanie działać natychmiast dla wszystkich.'))return;var c=newCode();
  sb.rpc('sor_admin_set_code',{p_new_code:c,p_expires:plToISO($('exp').value||'2027-11-11T23:59')}).then(function(r){if(err(r))return;$('nl').value=APP_URL+'#k='+c;$('newlink').style.display='';info()})};
 $('cp').onclick=function(){navigator.clipboard&&navigator.clipboard.writeText($('nl').value);$('cp').textContent='Skopiowano ✓'};

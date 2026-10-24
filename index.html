@@ -2,34 +2,26 @@
 <meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer">
 <title>Baza leków SOR – grupa zamknięta</title><link rel="stylesheet" href="style.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="config.js"></script></head><body>
-<header><h1>💊 Wspólna baza leków SOR</h1><p>Tylko dla naszej grupy SOR. Wpisz ok. 10 leków, których używasz. Najpierw sprawdź, czy lek już jest.</p></header>
+<header><h1>💊 Wspólna baza leków SOR</h1><p>Wpisz nazwę leku, wklej tekst z Indeksu leków MP (indeks.mp.pl) i zapisz. Tyle.</p></header>
 <main>
 <div id="deny" class="card warn" style="display:none"></div>
 <div id="app" style="display:none">
-<div class="card warn"><b>Baza niecertyfikowana – każdy wpis ma status „do weryfikacji”, dopóki nie zatwierdzi go koordynator.</b> Dawkowanie pisz <b>własnymi słowami, krótko</b> (np. „2 g i.v. co 24 h”). Nie wklejaj całych tekstów z eMPendium/Pharmindexu (prawa autorskie) – zaznacz źródło i ewentualnie wklej link. Decyzja o leczeniu zawsze należy do lekarza. <br><small id="valid"></small></div>
 <div class="card">
-<label>Twoje imię i nazwisko *</label><input id="autor" placeholder="np. Jan Kowalski" maxlength="80">
-<label>Substancja czynna (INN) *</label><input id="substancja" placeholder="np. ceftriakson" autocomplete="off" maxlength="120">
+<ol class="how"><li>Otwórz <a href="https://indeks.mp.pl" target="_blank" rel="noopener">indeks.mp.pl</a> i wyszukaj lek (np. rywaroksaban).</li><li>Zaznacz myszką opis leku, skopiuj (Ctrl+C) i wklej poniżej (Ctrl+V).</li><li>Wklej też adres strony leku i kliknij „Zapisz lek”.</li></ol>
+<label>Nazwa leku / substancja *</label><input id="substancja" placeholder="np. rywaroksaban" autocomplete="off" maxlength="120">
 <div id="exist"></div>
-<label>Przykładowe preparaty</label><input id="preparaty" placeholder="np. Biotrakson, Tercef" maxlength="300">
-<label>Wskazanie na SOR *</label><input id="wskazanie" placeholder="np. pozaszpitalne zapalenie płuc" maxlength="200">
-<label>Dawka – dorośli *</label><input id="dawka" placeholder="np. 2 g" maxlength="400">
-<div class="row"><div><label>Droga podania *</label><select id="droga"><option></option><option>i.v.</option><option>i.m.</option><option>p.o.</option><option>s.c.</option><option>p.r.</option><option>s.l.</option><option>wziewnie</option><option>donosowo</option><option>inna</option></select></div>
-<div><label>Częstość *</label><input id="czestosc" placeholder="np. co 24 h" maxlength="120"></div></div>
-<label>Dawka maksymalna</label><input id="dawka_max" placeholder="np. 4 g/dobę" maxlength="200">
-<label>Modyfikacja przy niewydolności nerek (CrCl/eGFR)</label><textarea id="nerki" placeholder="np. bez zmian; CrCl <10: max 2 g/d" maxlength="400"></textarea>
-<label>Kluczowe przeciwwskazania</label><textarea id="przeciwwskazania" placeholder="np. nadwrażliwość na β-laktamy" maxlength="500"></textarea>
-<label>Źródło * (kliknij, z czego korzystałeś)</label>
-<div class="src"><label id="l_mp"><input type="checkbox" id="zrodlo_mp"> eMPendium (MP.pl)</label><label id="l_ph"><input type="checkbox" id="zrodlo_ph"> Pharmindex</label></div>
-<label>Link do źródła (opcjonalnie)</label><input id="link" placeholder="https://..." maxlength="400">
+<label>Wklej tekst z Indeksu MP (indeks.mp.pl) *</label><textarea id="tekst_mp" class="big" maxlength="20000" placeholder="Wklej tutaj skopiowany opis leku…"></textarea>
+<small id="len">0 / 20000 znaków</small>
+<label>Link do strony leku na mp.pl (opcjonalnie)</label><input id="link" placeholder="https://indeks.mp.pl/..." maxlength="400">
 <button id="save">Zapisz lek</button><div id="msg"></div>
 </div>
-<div class="card"><b>Leki już w bazie: <span id="cnt">…</span></b> <small>(odświeżanie co 10 s)</small><input id="flt" placeholder="Szukaj w bazie…" style="margin-top:8px"><div id="all"></div></div>
+<div class="card"><b>Leki już w bazie: <span id="cnt">…</span></b> <small>(kliknij, aby rozwinąć)</small><input id="flt" placeholder="Szukaj w bazie…" style="margin-top:8px"><div id="all"></div></div>
+<p class="fine">Materiał roboczy grupy, nie przesyłaj dalej. Wpisy mają status „do weryfikacji” do czasu sprawdzenia przez koordynatora. <span id="valid"></span></p>
 </div>
 </main>
 <script src="common.js"></script>
 <script>
-var KEY='sor_baza_kod',DATA=[],F=['substancja','preparaty','wskazanie','dawka','droga','czestosc','dawka_max','nerki','przeciwwskazania','link'];
+var KEY='sor_baza_kod',DATA=[],F=['substancja','tekst_mp','link'];
 var m=location.hash.match(/k=([A-Za-z0-9_-]{32,128})/);if(m){localStorage.setItem(KEY,m[1]);history.replaceState(null,'',location.pathname)}
 var CODE=localStorage.getItem(KEY)||'',timer;
 var DENY={none:'🔒 Ta strona jest dostępna tylko dla grupy SOR. Otwórz ją z linku, który dostałeś na grupie WhatsApp.',
@@ -37,27 +29,29 @@ var DENY={none:'🔒 Ta strona jest dostępna tylko dla grupy SOR. Otwórz ją z
  expired:'⌛ Ważność linku dostępu wygasła. Poproś koordynatora na grupie SOR o nowy link.'};
 function deny(r){clearInterval(timer);$('app').style.display='none';$('deny').style.display='';$('deny').innerHTML='<b>'+DENY[r]+'</b>'}
 function rpcErr(e){if(/KOD_NIEWAZNY/.test(e.message||'')){localStorage.removeItem(KEY);deny('invalid');return true}return false}
-function render(){var q=norm($('flt').value);var f=DATA.filter(function(r){return !q||norm(JSON.stringify(r)).indexOf(q)>=0});$('cnt').textContent=DATA.length;$('all').innerHTML=f.map(function(r){return card(r)}).join('')||'<small>Brak wpisów.</small>';checkInn()}
+var OPEN={};
+function render(){var q=norm($('flt').value);var f=DATA.filter(function(r){return !q||norm(r.substancja+' '+(r.tekst_mp||'')).indexOf(q)>=0});$('cnt').textContent=DATA.length;$('all').innerHTML=f.map(function(r){return card2(r,OPEN[r.id])}).join('')||'<small>Brak wpisów.</small>';checkInn()}
 function checkInn(){var q=norm($('substancja').value);if(q.length<3){$('exist').innerHTML='';return}var f=DATA.filter(function(r){return norm(r.substancja).indexOf(q)>=0});
- $('exist').innerHTML=f.length?'<div class="card warn" style="margin-top:8px">⚠️ Ten lek już jest w bazie ('+f.length+'). Dodaj go tylko, jeśli masz <b>inne wskazanie</b>:'+f.map(function(r){return card(r)}).join('')+'</div>':'<small style="color:#176b25">✓ Tego leku jeszcze nie ma – dodaj go.</small>'}
-function load(cb){sb.rpc('sor_list',{p_code:CODE}).then(function(r){if(r.error){if(!rpcErr(r.error))msg('Błąd połączenia: '+r.error.message,1);return}DATA=r.data||[];render();cb&&cb()})}
+ $('exist').innerHTML=f.length?'<div class="card warn" style="margin-top:8px">⚠️ Ten lek już jest w bazie ('+f.length+'). Nie dodawaj go drugi raz:'+f.map(function(r){return card2(r)}).join('')+'</div>':'<small style="color:#176b25">✓ Tego leku jeszcze nie ma – dodaj go.</small>'}
+function load(){sb.rpc('sor_list',{p_code:CODE}).then(function(r){if(r.error){if(!rpcErr(r.error))msg('Błąd połączenia: '+r.error.message,1);return}DATA=r.data||[];render()})}
 function msg(t,e){$('msg').textContent=t;$('msg').style.color=e?'#a00':'#176b25'}
 function start(){if(!CODE)return deny('none');sb.rpc('sor_check',{p_code:CODE}).then(function(r){if(r.error)return deny('invalid');var d=r.data||{};
  if(!d.ok){if(d.reason==='invalid')localStorage.removeItem(KEY);return deny(d.reason==='expired'?'expired':'invalid')}
- $('deny').style.display='none';$('app').style.display='';$('valid').textContent='Link dostępu ważny do '+fmtPL(d.expires_at)+'. Nie przekazuj go poza grupę SOR.';load();timer=setInterval(load,10000)})}
-['mp','ph'].forEach(function(i){$('zrodlo_'+i).onchange=function(){$('l_'+i).className=this.checked?'on':''}});
-$('substancja').oninput=checkInn;$('flt').oninput=render;$('autor').value=localStorage.getItem('sor_autor')||'';
-$('save').onclick=function(){var e={autor:$('autor').value.trim()};F.forEach(function(i){e[i]=$(i).value.trim()});e.zrodlo_mp=$('zrodlo_mp').checked;e.zrodlo_ph=$('zrodlo_ph').checked;
- if(e.autor.length<3)return msg('Wpisz swoje imię i nazwisko.',1);
- var miss=[['substancja','substancję'],['wskazanie','wskazanie'],['dawka','dawkę'],['droga','drogę'],['czestosc','częstość']].filter(function(x){return !e[x[0]]}).map(function(x){return x[1]});
- if(miss.length)return msg('Uzupełnij: '+miss.join(', ')+'.',1);if(!e.zrodlo_mp&&!e.zrodlo_ph)return msg('Kliknij źródło: eMPendium lub Pharmindex.',1);
- if(e.link&&!/^https?:\/\//i.test(e.link))return msg('Link musi zaczynać się od https://',1);
- $('save').disabled=true;msg('Sprawdzam duplikaty…');
+ $('deny').style.display='none';$('app').style.display='';$('valid').textContent='Link ważny do '+fmtPL(d.expires_at)+'.';load();timer=setInterval(load,15000)})}
+$('substancja').oninput=checkInn;$('flt').oninput=render;
+$('tekst_mp').oninput=function(){$('len').textContent=this.value.length+' / 20000 znaków'};
+$('all').onclick=function(ev){var d=ev.target.closest('[data-id]');if(!d||ev.target.closest('a'))return;OPEN[d.dataset.id]=!OPEN[d.dataset.id];render()};
+$('save').onclick=function(){var e={};F.forEach(function(i){e[i]=$(i).value.trim()});
+ if(e.substancja.length<2)return msg('Wpisz nazwę leku.',1);
+ if(e.tekst_mp.length<20)return msg('Wklej tekst z Indeksu MP (indeks.mp.pl).',1);
+ if(e.tekst_mp.length>20000)return msg('Tekst jest za długi (max 20000 znaków).',1);
+ if(e.link&&!/^https:\/\//i.test(e.link))return msg('Link musi zaczynać się od https://',1);
+ $('save').disabled=true;msg('Sprawdzam, czy lek już jest…');
  sb.rpc('sor_dup',{p_code:CODE,p_substancja:e.substancja}).then(function(d){if(d.error){$('save').disabled=false;if(!rpcErr(d.error))msg('Błąd: '+d.error.message,1);return}
-  var dup=(d.data||[]).some(function(r){return norm(r.substancja)===norm(e.substancja)&&norm(r.wskazanie)===norm(e.wskazanie)});
-  if(dup&&!confirm('Ten lek z tym samym wskazaniem już jest w bazie. Dodać mimo to?')){$('save').disabled=false;return msg('Nie dodano – lek już jest.',1)}
-  localStorage.setItem('sor_autor',e.autor);msg('Zapisuję…');
-  sb.rpc('sor_add',{p_code:CODE,p:e}).then(function(r){$('save').disabled=false;if(r.error){if(!rpcErr(r.error))msg('Błąd: '+r.error.message,1);return}
-   msg('✓ Zapisano. Dziękujemy! Wpisz kolejny lek.');F.forEach(function(i){$(i).value=''});['mp','ph'].forEach(function(i){$('zrodlo_'+i).checked=false;$('l_'+i).className=''});load();scrollTo(0,0)})})};
+  var ex=d.data||[];
+  if(ex.length&&!confirm('W bazie są już: '+ex.map(function(r){return r.substancja}).join(', ')+'.\nDodać mimo to?')){$('save').disabled=false;return msg('Nie dodano – lek już jest.',1)}
+  msg('Zapisuję…');
+  sb.rpc('sor_add2',{p_code:CODE,p:e}).then(function(r){$('save').disabled=false;if(r.error){if(!rpcErr(r.error))msg('Błąd: '+r.error.message,1);return}
+   msg('✓ Zapisano. Dziękujemy! Wpisz kolejny lek.');F.forEach(function(i){$(i).value=''});$('len').textContent='0 / 20000 znaków';$('exist').innerHTML='';load()})})};
 start();
 </script></body></html>
