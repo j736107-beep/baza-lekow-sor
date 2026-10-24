@@ -1,0 +1,12 @@
+body{font-family:system-ui,Arial,sans-serif;margin:0;background:#f3f6fa;color:#1b2430}
+header{background:#0b5394;color:#fff;padding:14px 16px}header h1{margin:0;font-size:20px}header p{margin:4px 0 0;font-size:13px;opacity:.9}
+main{max-width:760px;margin:auto;padding:12px}.card{background:#fff;border-radius:10px;padding:14px;margin-bottom:12px;box-shadow:0 1px 3px #0002}
+.warn{background:#fff4ce;border-left:4px solid #e0a800;font-size:14px}
+label{display:block;font-weight:600;font-size:14px;margin:10px 0 4px}input,textarea,select{width:100%;box-sizing:border-box;padding:9px;border:1px solid #b8c2cc;border-radius:7px;font-size:15px;font-family:inherit}
+textarea{min-height:52px}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}@media(max-width:560px){.row{grid-template-columns:1fr}}
+.src{display:flex;gap:10px;flex-wrap:wrap}.src label{margin:0;padding:10px 14px;border:2px solid #0b5394;border-radius:22px;cursor:pointer;display:flex;gap:6px;align-items:center}
+.src input{width:auto}.src label.on{background:#0b5394;color:#fff}
+button{background:#0b5394;color:#fff;border:0;border-radius:8px;padding:11px 16px;font-size:15px;cursor:pointer;margin-top:10px}button.sec{background:#5a6570}button.red{background:#b3261e}
+.ex{border:1px solid #d8dee4;border-radius:8px;padding:8px;margin:6px 0;font-size:14px}.st{font-size:12px;background:#fde2e1;color:#a00;padding:2px 6px;border-radius:5px}
+.st.ok{background:#d9f2dc;color:#176b25}#msg{font-weight:600;margin-top:10px}small{color:#5a6570}.ex button{padding:6px 10px;font-size:13px;margin:6px 4px 0 0}
+.top{display:flex;justify-content:space-between;align-items:center;font-size:13px;margin-bottom:8px}.top button{margin:0;padding:6px 10px;font-size:13px}
